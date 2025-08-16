@@ -2,13 +2,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Business } from './businesses/entities/business.entity';
-import { BusinessesModule } from './businesses/business.module';
+import { BusinessesModule } from './businesses/businesses.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       useFactory: () => ({
         type: 'postgres',
         host: process.env.DB_HOST,
@@ -16,8 +16,8 @@ import { BusinessesModule } from './businesses/business.module';
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
-        entities: [Business],
-        synchronize: true,
+        autoLoadEntities: true, // Automatically load entities from the Businesses module
+        synchronize: true, // ⚠️ Dev only — disable in prod and use migrations
       }),
     }),
     BusinessesModule,

@@ -1,20 +1,14 @@
 // File: services/businesses-service/backend/src/main.ts
+import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
+import 'dotenv/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') || 3400;
-
-  app.use((req, res, next) => {
-    console.log(`[${req.method}] ${req.originalUrl}`);
-    next();
-  });
-
-  await app.listen(port);
-  console.log(`✅ Businesses Service running at http://localhost:${port}`);
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  await app.listen(process.env.PORT ? Number(process.env.PORT) : 3000);
+  Logger.log(`Businesses service listening on ${process.env.PORT ?? 3000}`);
 }
+console.log('DB_PASSWORD from env:', JSON.stringify(process.env.DB_PASSWORD));
 bootstrap();
